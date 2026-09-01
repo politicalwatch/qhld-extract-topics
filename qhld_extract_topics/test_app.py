@@ -1,7 +1,7 @@
 import unittest
 from slugify import slugify
 
-from app import TopicsExtractor
+from qhld_extract_topics.app import TopicsExtractor
 
 
 class TestApp(unittest.TestCase):

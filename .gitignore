@@ -1,7 +1,7 @@
 .DS_Store
-credentials.json
-data/*.json
-topics.json
+**/credentials.json
+**/data/*.json
+**/topics.json
 
 .cpython-36.pyc
 *.pyc

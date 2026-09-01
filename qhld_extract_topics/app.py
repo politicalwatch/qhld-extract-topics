@@ -6,16 +6,22 @@ from Google Spreadsheets to MongoDB JSON collection
 import sys
 import json
 import itertools
+from pathlib import Path
 
 import pygsheets
 import regex
 from slugify import slugify
 
+# Los recursos del paquete (credenciales y ficheros de referencia) se resuelven
+# respecto a este fichero, para poder ejecutar el script desde cualquier directorio.
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+
 
 class TopicsExtractor:
 
     def __init__(self, verbose=False, args=list()):
-        self.GOOGLE_DRIVE_CREDENTIALS_FILE = "credentials.json"
+        self.GOOGLE_DRIVE_CREDENTIALS_FILE = BASE_DIR / "credentials.json"
         self.DATA_REFERENCE_FILE = args[1] if len(args) > 1 else ""
         self.verbose = verbose
         self.topics = list()
@@ -38,12 +44,23 @@ class TopicsExtractor:
             self.__regex_validation(tag["tag"], tag["regex"])
 
     def load_data_reference(self):
-        with open("./data/" + self.DATA_REFERENCE_FILE, "r") as data_reference_file:
+        if not self.DATA_REFERENCE_FILE:
+            raise SystemExit(
+                "Usage: python app.py <data_reference_name>.json\n"
+                "Available: "
+                + ", ".join(sorted(p.name for p in DATA_DIR.glob("*.json")))
+            )
+        data_reference_path = DATA_DIR / self.DATA_REFERENCE_FILE
+        if not data_reference_path.is_file():
+            raise SystemExit(
+                "[ERROR] Data reference file not found: {}".format(data_reference_path)
+            )
+        with open(data_reference_path, "r") as data_reference_file:
             self.data_reference = json.load(data_reference_file)
 
     def load_google_credentials(self):
         self.google_credentials = pygsheets.authorize(
-            service_account_file=self.GOOGLE_DRIVE_CREDENTIALS_FILE
+            service_account_file=str(self.GOOGLE_DRIVE_CREDENTIALS_FILE)
         )
 
     def load_topics(self):
@@ -74,10 +91,12 @@ class TopicsExtractor:
             self.topics.append(topic)
 
     def export_topics(self):
-        file_out = open("topics.json", "w")
-        file_out.write(json.dumps(self.topics, indent=True, ensure_ascii=False))
-        file_out.close()
-        print("[EXPORT] Created topics.json file")
+        # La salida es un artefacto del usuario, asi que se escribe en el
+        # directorio de trabajo actual, no dentro del paquete.
+        output_path = Path("topics.json").resolve()
+        with open(output_path, "w") as file_out:
+            file_out.write(json.dumps(self.topics, indent=True, ensure_ascii=False))
+        print("[EXPORT] Created {}".format(output_path))
 
     def run(self):
         self.load_data_reference()
