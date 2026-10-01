@@ -32,7 +32,7 @@ dependencies = [
 "protobuf==5.28.3",
 "ptyprocess==0.7.0",
 "pyasn1-modules==0.4.1",
-"pyasn1==0.6.1",
+"pyasn1==0.6.4",
 "pycparser==2.22",
 "Pygments==2.18.0",
 "pygsheets==2.0.6",
