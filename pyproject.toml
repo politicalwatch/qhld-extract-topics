@@ -23,7 +23,7 @@ dependencies = [
 "idna==3.10",
 "ipython-genutils==0.2.0",
 "jedi==0.19.2",
-"msgpack==1.1.0",
+"msgpack==1.2.1",
 "oauthlib==3.2.2",
 "parso==0.8.4",
 "pexpect==4.9.0",
